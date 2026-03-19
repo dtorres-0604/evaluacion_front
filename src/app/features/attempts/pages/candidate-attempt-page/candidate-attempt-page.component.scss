@@ -1,0 +1,73 @@
+.attempts-page {
+  min-height: calc(100dvh - 136px);
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  color: var(--color-primary-text);
+}
+
+.answer-form {
+  display: grid;
+  gap: 12px;
+}
+
+.start-card-content {
+  display: grid;
+  gap: 8px;
+
+  p {
+    margin: 0;
+    color: var(--text-main);
+  }
+}
+
+.statement {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-main);
+}
+
+.answer-form textarea {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 0.92rem;
+}
+
+.option-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.inline-success {
+  margin: 0;
+  color: #1d7f1d;
+}

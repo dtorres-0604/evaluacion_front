@@ -1,0 +1,19 @@
+<section class="dashboard-layout">
+  <article class="card summary-card">
+    <div class="card-content summary-content">
+      <img src="/brand_icon_halftone-03.png" alt="Logo" class="summary-logo" />
+
+      <h2 class="summary-title">Resumen de Sesion</h2>
+
+      <p class="summary-line">
+        <span class="summary-label">Nombre completo</span>
+        <strong class="summary-value">{{ fullName$ | async }}</strong>
+      </p>
+
+      <p class="summary-line">
+        <span class="summary-label">Hora de inicio</span>
+        <strong class="summary-value">{{ sessionStart | date:'shortTime' }}</strong>
+      </p>
+    </div>
+  </article>
+</section>

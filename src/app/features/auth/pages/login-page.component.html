@@ -1,0 +1,43 @@
+<section class="wraper">
+  <article class="login-container">
+    <div class="image-login">
+      <h3 class="product-name">Evaluacion Tecnica</h3>
+      <img src="/brand_icon_halftone-02.png" class="brand-icon" alt="Brand" />
+    </div>
+
+    <div class="form-container">
+      <h3 class="login-text">Inicio de sesion</h3>
+
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" autocomplete="on" class="login-form">
+        <label class="field-label" for="login-email">Usuario</label>
+        <div class="input-wrapper" [class.input-error]="loginForm.controls.email.touched && loginForm.controls.email.invalid">
+          <span class="material-symbols-rounded input-icon" aria-hidden="true">person</span>
+          <input id="login-email" class="login-input" type="email" placeholder="usuario@farsiman.com" formControlName="email" />
+        </div>
+
+        <label class="field-label" for="login-password">Contrasena</label>
+        <div class="input-wrapper" [class.input-error]="loginForm.controls.password.touched && loginForm.controls.password.invalid">
+          <span class="material-symbols-rounded input-icon" aria-hidden="true">lock</span>
+          <input id="login-password" class="login-input" type="password" placeholder="Contrasena" formControlName="password" />
+        </div>
+
+        <ng-container *ngIf="loginForm.touched && loginForm.invalid">
+          <p class="field-error">Verifica email y password antes de continuar.</p>
+        </ng-container>
+
+        <ng-container *ngIf="error$ | async as error">
+          <p class="field-error">{{ error }}</p>
+        </ng-container>
+
+        <button type="submit" class="btn login-button" [disabled]="(loading$ | async) || isButtonDisabled">
+          <ng-container *ngIf="loading$ | async; else loginReady">Ingresando...</ng-container>
+          <ng-template #loginReady>Entrar</ng-template>
+        </button>
+
+        <p class="seed-note">
+          Usuario semilla: admin@dt.local / Admin123*
+        </p>
+      </form>
+    </div>
+  </article>
+</section>

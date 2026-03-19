@@ -1,0 +1,136 @@
+.tests-page {
+  min-height: calc(100dvh - 136px);
+  display: grid;
+  align-content: start;
+}
+
+.tests-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.tests-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.tests-form input,
+.tests-form textarea,
+.tests-form select {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.93rem;
+  font-family: inherit;
+}
+
+.wide {
+  grid-column: 1 / -1;
+}
+
+.switch-row {
+  grid-column: 1 / -1;
+  display: flex !important;
+  align-items: center;
+  gap: 8px;
+}
+
+.switch-row input {
+  width: auto;
+}
+
+.questions-block {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 12px;
+  border-top: 1px solid var(--border-soft);
+  padding-top: 14px;
+}
+
+.questions-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.questions-header h4 {
+  margin: 0;
+  color: var(--color-primary-text);
+}
+
+.question-card {
+  border: 1px solid var(--border-soft);
+  border-radius: 14px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  background: linear-gradient(170deg, #ffffff 0%, #f7f9ff 100%);
+}
+
+.question-topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.question-topbar h5 {
+  margin: 0;
+  color: var(--text-main);
+}
+
+.inline-success {
+  color: #1d7f1d;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.inline-note {
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.88rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  color: var(--color-primary-text);
+}
+
+.actions-col {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  padding: 7px 10px;
+  font-size: 0.82rem;
+}

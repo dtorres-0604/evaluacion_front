@@ -1,0 +1,157 @@
+<section class="users-page">
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">person_add</span>
+      </div>
+      <div>
+        <h3 class="card-title">{{ isEditMode ? 'Editar Usuario' : 'Crear Usuario' }}</h3>
+        <p>Formulario basado en UsuarioCreateDto.</p>
+      </div>
+    </header>
+
+    <form class="card-content user-form" [formGroup]="userForm">
+      <label>
+        Username
+        <input type="text" formControlName="username" />
+      </label>
+      <label>
+        Email
+        <input type="email" formControlName="email" />
+      </label>
+      <label>
+        {{ isEditMode ? 'Password (opcional)' : 'Password' }}
+        <input type="password" formControlName="password" />
+      </label>
+      <label>
+        Nombre
+        <input type="text" formControlName="name" />
+      </label>
+      <label>
+        Apellido
+        <input type="text" formControlName="lastName" />
+      </label>
+      <label>
+        Telefono
+        <input type="text" formControlName="phone" />
+      </label>
+      <label>
+        Departamento
+        <input type="text" formControlName="department" />
+      </label>
+      <label>
+        Roles
+        <div class="roles-combobox" #rolesComboboxRef>
+          <button type="button" class="roles-trigger" (click)="toggleRolesDropdown()" [disabled]="loadingRoles">
+            <span>{{ selectedRolesLabel }}</span>
+            <span class="material-symbols-rounded" aria-hidden="true">
+              {{ rolesDropdownOpen ? 'keyboard_arrow_up' : 'keyboard_arrow_down' }}
+            </span>
+          </button>
+
+          <ng-container *ngIf="rolesDropdownOpen">
+            <div class="roles-dropdown">
+            <input
+              type="text"
+              class="roles-search"
+              placeholder="Buscar rol..."
+              [value]="roleSearchTerm"
+              (input)="onRoleSearch($event)"
+            />
+
+            <div class="roles-options">
+              <label class="role-option" *ngFor="let role of filteredRoles">
+                <input
+                  type="checkbox"
+                  [checked]="isRoleSelected(role.name)"
+                  (change)="onRoleToggle($event, role.name)"
+                />
+                <span>{{ role.name }}</span>
+              </label>
+
+              <ng-container *ngIf="filteredRoles.length === 0">
+                <p class="roles-empty">No hay roles que coincidan.</p>
+              </ng-container>
+            </div>
+            </div>
+          </ng-container>
+        </div>
+      </label>
+      <ng-container *ngIf="loadingRoles">
+        <p class="roles-help">Cargando roles...</p>
+      </ng-container>
+      <ng-container *ngIf="formMessage">
+        <p class="inline-error">{{ formMessage }}</p>
+      </ng-container>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-success" [disabled]="saving" (click)="onSubmit()">
+          <ng-container *ngIf="saving; else saveLabel">Guardando...</ng-container>
+          <ng-template #saveLabel>{{ isEditMode ? 'Actualizar' : 'Crear Usuario' }}</ng-template>
+        </button>
+        <ng-container *ngIf="isEditMode">
+          <button type="button" class="btn" (click)="onCancelEdit()">Cancelar</button>
+        </ng-container>
+      </div>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">groups</span>
+      </div>
+      <div>
+        <h3 class="card-title">Listado de Usuarios</h3>
+        <p>Consulta y administracion de cuentas existentes.</p>
+      </div>
+    </header>
+
+    <section class="card-content">
+      <ng-container *ngIf="errorMessage">
+        <p class="inline-error">{{ errorMessage }}</p>
+      </ng-container>
+
+      <ng-container *ngIf="loading; else usersTable">
+        <p>Cargando usuarios...</p>
+      </ng-container>
+
+      <ng-template #usersTable>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>Email</th>
+              <th>Nombre</th>
+              <th>Departamento</th>
+              <th>Roles</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of users">
+              <td>{{ user.id }}</td>
+              <td>{{ user.username }}</td>
+              <td>{{ user.email }}</td>
+              <td>{{ user.name }} {{ user.lastName }}</td>
+              <td>{{ user.department }}</td>
+              <td>{{ user.roles.join(', ') || '-' }}</td>
+              <td class="actions-col">
+                <button type="button" class="btn action-button" (click)="onEdit(user)">Editar</button>
+                <button type="button" class="btn btn-danger action-button" (click)="onDelete(user)">Eliminar</button>
+              </td>
+            </tr>
+            <ng-container *ngIf="users.length === 0">
+              <tr>
+                <td colspan="7">No hay usuarios para mostrar.</td>
+              </tr>
+            </ng-container>
+          </tbody>
+        </table>
+      </div>
+      </ng-template>
+    </section>
+  </article>
+</section>

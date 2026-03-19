@@ -1,0 +1,60 @@
+.assignments-page {
+  min-height: calc(100dvh - 136px);
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.assignments-form {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+}
+
+.assignments-form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+.assignments-form input,
+.assignments-form select {
+  border: 1px solid var(--border-soft);
+  border-radius: 10px;
+  padding: 10px;
+  font-size: 0.93rem;
+  font-family: inherit;
+}
+
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 10px;
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  color: var(--color-primary-text);
+}
+
+.inline-success {
+  margin: 0;
+  color: #1d7f1d;
+}

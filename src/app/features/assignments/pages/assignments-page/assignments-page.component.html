@@ -1,0 +1,100 @@
+<section class="assignments-page">
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">playlist_add_check</span>
+      </div>
+      <div>
+        <h3 class="card-title">Asignar Evaluacion</h3>
+        <p>Asigna una prueba tecnica a un usuario candidato.</p>
+      </div>
+    </header>
+
+    <form class="card-content assignments-form" [formGroup]="assignmentForm">
+      <label>
+        Prueba tecnica
+        <select formControlName="testId" [disabled]="loadingOptions">
+          <option [ngValue]="0">Selecciona una prueba</option>
+          <option *ngFor="let test of tests" [ngValue]="test.id">{{ test.title }}</option>
+        </select>
+      </label>
+
+      <label>
+        Candidato
+        <select formControlName="candidateUserId" [disabled]="loadingOptions">
+          <option [ngValue]="0">Selecciona un candidato</option>
+          <option *ngFor="let candidate of candidates" [ngValue]="candidate.id">{{ candidate.fullName }}</option>
+        </select>
+      </label>
+
+      <label>
+        Habilitado desde (opcional)
+        <input type="datetime-local" formControlName="enabledFrom" />
+      </label>
+
+      <label>
+        Habilitado hasta (opcional)
+        <input type="datetime-local" formControlName="enabledTo" />
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="btn btn-success" [disabled]="saving" (click)="onSubmit()">
+          {{ saving ? 'Asignando...' : 'Asignar evaluacion' }}
+        </button>
+      </div>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">list_alt</span>
+      </div>
+      <div>
+        <h3 class="card-title">Listado de Asignaciones</h3>
+        <p>Seguimiento de pruebas asignadas a candidatos.</p>
+      </div>
+    </header>
+
+    <section class="card-content">
+      <ng-container *ngIf="loadingAssignments; else assignmentsTable">
+        <p>Cargando asignaciones...</p>
+      </ng-container>
+
+      <ng-template #assignmentsTable>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Prueba</th>
+                <th>Candidato</th>
+                <th>Vigencia</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let assignment of assignments">
+                <td>{{ assignment.id }}</td>
+                <td>{{ resolveTestTitle(assignment.testId) }}</td>
+                <td>{{ resolveCandidateName(assignment.candidateUserId) }}</td>
+                <td>
+                  {{ assignment.enabledFrom || '-' }}
+                  <br />
+                  {{ assignment.enabledTo || '-' }}
+                </td>
+                <td>{{ assignment.status }}</td>
+              </tr>
+              <tr *ngIf="assignments.length === 0">
+                <td colspan="5">No hay asignaciones registradas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-template>
+    </section>
+  </article>
+
+  <p class="inline-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  <p class="inline-success" *ngIf="successMessage">{{ successMessage }}</p>
+</section>

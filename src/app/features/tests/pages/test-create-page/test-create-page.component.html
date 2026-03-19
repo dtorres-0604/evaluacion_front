@@ -1,0 +1,175 @@
+<section class="tests-page">
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">post_add</span>
+      </div>
+      <div>
+        <h3 class="card-title">{{ isEditMode ? 'Editar Prueba Tecnica' : 'Crear Prueba Tecnica' }}</h3>
+        <p>
+          {{ isEditMode
+            ? 'Actualiza datos base de la prueba seleccionada.'
+            : 'Configura la prueba y agrega preguntas con temporizador.' }}
+        </p>
+      </div>
+    </header>
+
+    <form class="card-content tests-form" [formGroup]="testForm">
+      <label>
+        Titulo de la prueba
+        <input type="text" formControlName="title" />
+      </label>
+
+      <label class="wide">
+        Descripcion
+        <textarea rows="3" formControlName="description"></textarea>
+      </label>
+
+      <label>
+        Duracion total (min)
+        <input type="number" min="5" formControlName="durationMinutes" />
+      </label>
+
+      <label>
+        Puntaje de aprobacion (%)
+        <input type="number" min="1" max="100" formControlName="passingScore" />
+      </label>
+
+      <label class="switch-row">
+        <input type="checkbox" formControlName="isPublished" />
+        <span>Publicada al crear</span>
+      </label>
+
+      <section class="questions-block" formArrayName="questions">
+        <header class="questions-header">
+          <h4>Preguntas</h4>
+          <button type="button" class="btn" (click)="addQuestion()">Agregar pregunta</button>
+        </header>
+
+        <ng-container *ngIf="isEditMode && loadingQuestions">
+          <p class="inline-note">Cargando preguntas de la prueba seleccionada...</p>
+        </ng-container>
+
+        <ng-container *ngIf="isEditMode && !loadingQuestions">
+          <p class="inline-note">Puedes editar, agregar o eliminar preguntas antes de guardar cambios.</p>
+        </ng-container>
+
+        <ng-container *ngFor="let questionControl of questions.controls; let i = index">
+          <article class="question-card" [formGroupName]="i">
+            <div class="question-topbar">
+              <h5>Pregunta {{ i + 1 }}</h5>
+              <button type="button" class="btn btn-danger" (click)="removeQuestion(i)">Quitar</button>
+            </div>
+
+            <label>
+              Tipo de pregunta
+              <select formControlName="type" (change)="onQuestionTypeChange(i)">
+                <option [ngValue]="1">Abierta</option>
+                <option [ngValue]="2">Opcion multiple</option>
+                <option [ngValue]="3">Codigo</option>
+              </select>
+            </label>
+
+            <label class="wide">
+              Enunciado
+              <textarea rows="2" formControlName="statement"></textarea>
+            </label>
+
+            <ng-container *ngIf="isMultipleChoice(i)">
+              <label class="wide">
+                Opciones (una por linea)
+                <textarea rows="4" formControlName="options" placeholder="Opcion A&#10;Opcion B&#10;Opcion C"></textarea>
+              </label>
+            </ng-container>
+
+            <label>
+              Orden
+              <input type="number" min="1" formControlName="order" />
+            </label>
+
+            <label>
+              Puntaje maximo
+              <input type="number" min="1" formControlName="maxScore" />
+            </label>
+
+            <label>
+              Temporizador por pregunta (segundos, opcional)
+              <input type="number" min="15" formControlName="timerSeconds" />
+            </label>
+          </article>
+        </ng-container>
+      </section>
+
+      <ng-container *ngIf="errorMessage">
+        <p class="inline-error wide">{{ errorMessage }}</p>
+      </ng-container>
+
+      <ng-container *ngIf="successMessage">
+        <p class="inline-success wide">{{ successMessage }}</p>
+      </ng-container>
+
+      <div class="form-actions wide">
+        <button type="button" class="btn btn-success" [disabled]="saving" (click)="onSubmit()">
+          <ng-container *ngIf="saving; else createReady">Guardando prueba...</ng-container>
+          <ng-template #createReady>{{ isEditMode ? 'Actualizar prueba' : 'Crear prueba tecnica' }}</ng-template>
+        </button>
+
+        <button type="button" class="btn" *ngIf="isEditMode" (click)="onCancelEdit()">
+          Cancelar
+        </button>
+      </div>
+    </form>
+  </article>
+
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">inventory</span>
+      </div>
+      <div>
+        <h3 class="card-title">Listado de Pruebas Tecnicas</h3>
+        <p>Aqui puedes ver, editar o eliminar pruebas creadas.</p>
+      </div>
+    </header>
+
+    <section class="card-content">
+      <ng-container *ngIf="loadingTests; else testsTable">
+        <p>Cargando pruebas...</p>
+      </ng-container>
+
+      <ng-template #testsTable>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Titulo</th>
+                <th>Duracion (min)</th>
+                <th>Puntaje Aprobacion</th>
+                <th>Publicada</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let test of tests">
+                <td>{{ test.id }}</td>
+                <td>{{ test.title }}</td>
+                <td>{{ test.durationMinutes }}</td>
+                <td>{{ test.passingScore }}</td>
+                <td>{{ test.isPublished ? 'Si' : 'No' }}</td>
+                <td class="actions-col">
+                  <button type="button" class="btn action-button" (click)="onEditTest(test)">Editar</button>
+                  <button type="button" class="btn btn-danger action-button" (click)="onDeleteTest(test)">Eliminar</button>
+                </td>
+              </tr>
+
+              <tr *ngIf="tests.length === 0">
+                <td colspan="6">No hay pruebas tecnicas registradas.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-template>
+    </section>
+  </article>
+</section>
