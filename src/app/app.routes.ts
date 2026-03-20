@@ -92,7 +92,8 @@ export const routes: Routes = [
         component: CandidateScorePageComponent,
         canActivate: [permissionGuard],
         data: {
-          permission: 'read:candidate-attempt',
+          permission: 'read:candidate-score',
+          allowedRoles: ['candidato'],
           title: 'Mi Puntaje',
           description: 'Consulta de resultados y calificaciones de intentos.',
         },

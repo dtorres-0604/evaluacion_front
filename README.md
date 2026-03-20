@@ -1,45 +1,68 @@
 # EvaluacionTecnicaFrontend
 
-Frontend en Angular 21 con NgRx para autenticacion y control de permisos, conectado al backend .NET 8 de Evaluacion Tecnica.
+Frontend de Evaluacion Tecnica construido con Angular 21 (standalone components) + NgRx para autenticacion, permisos y navegacion por rol.
 
-## Alcance Implementado
+## Estado actual
 
-- Pantalla de Login conectada al endpoint `POST /api/auth/login`.
-- Pantalla de Dashboard protegida por autenticacion y permiso.
-- Estado global con NgRx (`store`, `effects`, `selectors`, `actions`).
-- Persistencia de sesion en `localStorage`.
-- Guards de ruta:
-  - `authGuard` para rutas autenticadas.
-  - `guestGuard` para impedir entrar a login si ya hay sesion.
-  - `permissionGuard` para validar permisos por ruta.
+- Login integrado con backend (`POST /api/auth/login`) y parseo robusto de JWT/claims.
+- Seguridad por capas:
+  - `authGuard` (sesion activa)
+  - `guestGuard` (evita volver a login con sesion)
+  - `permissionGuard` (permiso + rol opcional por ruta)
+- Layout principal con menu lateral filtrado por permisos y rol.
+- Modulos funcionales:
+  - Dashboard
+  - Usuarios (CRUD)
+  - Pruebas Tecnicas
+  - Asignaciones
+  - Intentos de Candidato
+  - Mi Puntaje (solo rol Candidato)
+  - Analisis IA
 
-## Estructura Principal
+## Arquitectura
 
-- `src/app/core`: modelos, servicios y guards.
-- `src/app/store/auth`: estado NgRx de autenticacion.
-- `src/app/features/auth`: pagina Login.
-- `src/app/features/dashboard`: pagina Dashboard.
+Resumen detallado:
 
-## Configuracion de API
+- `docs/Arquitectura-Frontend.md`
 
-La URL base del backend esta en:
+Bitacora cronologica de cambios:
 
-- `src/app/core/services/auth-api.service.ts`
+- `docs/Bitacora-Frontend.md`
 
-Valor actual:
+## Estructura principal
 
-- `http://localhost:5099/api`
+- `src/app/core`
+  - `auth`: normalizacion y validacion de permisos.
+  - `guards`: control de acceso por autenticacion, permiso y rol.
+  - `interceptors`: agrega `Authorization: Bearer <token>` a `/api/*`.
+  - `services`: login y persistencia de sesion.
+  - `constants/lists/theme`: catalogos de permisos, menu lateral y paleta.
+- `src/app/store/auth`
+  - `actions`, `reducer`, `effects`, `selectors`.
+- `src/app/features`
+  - Modulos/paginas de negocio.
 
-Si tu backend corre en otra URL, actualiza ese valor.
+## Configuracion de API (desarrollo)
 
-## Rutas Implementadas
+El frontend usa base relativa `/api`.
 
-- `/login`
-- `/dashboard`
+- Proxy dev en `proxy.conf.json` apuntando a `http://localhost:5099`.
+- Script recomendado de arranque ya incluye proxy: `npm start`.
 
-`/dashboard` actualmente exige permiso: `tests.manage`.
+## Rutas principales
 
-## Ejecucion Local
+- Publica:
+  - `/login`
+- Protegidas bajo `/main`:
+  - `/main/dashboard` (`read:tests`)
+  - `/main/users` (`read:users`)
+  - `/main/tests` (`read:tests`)
+  - `/main/assignments` (`read:assignments`)
+  - `/main/attempts` (`read:candidate-attempt`)
+  - `/main/my-scores` (`read:candidate-score` + rol `candidato`)
+  - `/main/ai-analysis` (`read:ai-analysis`)
+
+## Ejecucion local
 
 1. Instalar dependencias:
 
@@ -47,13 +70,13 @@ Si tu backend corre en otra URL, actualiza ese valor.
 npm install
 ```
 
-1. Levantar frontend:
+2. Ejecutar desarrollo:
 
 ```bash
 npm start
 ```
 
-1. Abrir:
+3. Abrir en navegador:
 
 - `http://localhost:4200`
 
@@ -62,41 +85,3 @@ npm start
 ```bash
 npm run build
 ```
-
-## Usuario Semilla Backend
-
-- Email: `admin@dt.local`
-- Password: `Admin123*`
-
-## Bitacora de Trabajo Frontend
-
-### 2026-03-19 - Bloque 1
-
-- Se inicializo proyecto Angular 21 en la carpeta raiz del workspace.
-- Se agrego NgRx (`@ngrx/store`, `@ngrx/effects`, `@ngrx/store-devtools`).
-- Se configuro `app.config.ts` con router, http client, store y effects.
-
-### 2026-03-19 - Bloque 2
-
-- Se implemento modulo de autenticacion:
-  - `AuthApiService` para login con parseo robusto de token/claims/permisos.
-  - `TokenStorageService` para persistir/restaurar sesion.
-  - `AuthActions`, `authFeature` reducer, selectors y effects.
-- Se implementaron guards:
-  - `authGuard`
-  - `guestGuard`
-  - `permissionGuard`
-
-### 2026-03-19 - Bloque 3
-
-- Se crearon vistas:
-  - Login (`/login`)
-  - Dashboard (`/dashboard`)
-- Se aplico estilo de tarjetas inspirado en el formato solicitado (header iconico, card content, botones de accion).
-- Se ajusto routing con proteccion por permiso en Dashboard.
-
-### 2026-03-19 - Bloque 4
-
-- Se ejecuto compilacion de validacion:
-  - `npm run build`
-- Resultado: build exitoso con salida en `dist/evaluacion-tecnica-frontend`.

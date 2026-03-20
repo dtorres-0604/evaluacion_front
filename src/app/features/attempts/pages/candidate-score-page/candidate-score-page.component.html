@@ -37,6 +37,7 @@
                 <th>Promedio</th>
                 <th>Minimo Aprobacion</th>
                 <th>Resultado</th>
+                <th>Recomendacion</th>
               </tr>
             </thead>
             <tbody>
@@ -54,9 +55,10 @@
                   </ng-container>
                   <ng-template #noResult>-</ng-template>
                 </td>
+                <td>{{ row.aiSuggestedScore ?? '-' }}</td>
               </tr>
               <tr *ngIf="rows.length === 0">
-                <td colspan="8">Aun no tienes intentos con resultado visible.</td>
+                <td colspan="9">Aun no tienes intentos con resultado visible.</td>
               </tr>
             </tbody>
           </table>

@@ -6,7 +6,7 @@ import { map } from 'rxjs';
 import { sidebarMenu } from '../../../core/lists/sidebar-menu';
 import { hasPermission } from '../../../core/auth/permission.utils';
 import { AuthActions } from '../../../store/auth/auth.actions';
-import { selectPermissions, selectUserName } from '../../../store/auth/auth.selectors';
+import { selectAuthState, selectUserName } from '../../../store/auth/auth.selectors';
 
 @Component({
   selector: 'app-main-layout',
@@ -23,10 +23,20 @@ export class MainLayoutComponent {
 
   readonly userName$ = this.store.select(selectUserName).pipe(map((value) => value ?? 'Usuario'));
 
-  readonly menuItems$ = this.store.select(selectPermissions).pipe(
-    map((grantedPermissions) =>
-      sidebarMenu.filter((item) => hasPermission(item.subject, grantedPermissions)),
-    ),
+  readonly menuItems$ = this.store.select(selectAuthState).pipe(
+    map((authState) => {
+      const grantedPermissions = authState.permissions ?? [];
+      const grantedRoles = (authState.roles ?? []).map((role) => role.toLowerCase());
+
+      return sidebarMenu.filter((item) => {
+        const hasRequiredPermission = hasPermission(item.subject, grantedPermissions);
+        const hasAllowedRole =
+          !item.allowedRoles ||
+          item.allowedRoles.some((allowedRole) => grantedRoles.includes(allowedRole.toLowerCase()));
+
+        return hasRequiredPermission && hasAllowedRole;
+      });
+    }),
   );
 
   onToggleSidenav(): void {

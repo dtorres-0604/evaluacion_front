@@ -689,3 +689,86 @@ Proyecto: EvaluacionTecnicaFrontend (Angular + NgRx)
     - `enabledTo: now`
 - Resultado esperado:
   - Evitar error de enum y permitir cierre de asignacion con campos no-enum.
+
+### 2026-03-20 - Bloque 45 - Separacion de permisos: ver intentos vs calificar
+
+- Hallazgo reportado:
+  - La pantalla de intentos permitia ver y guardar puntajes bajo el mismo permiso de lectura.
+- Correccion aplicada en frontend:
+  - Se mantiene acceso de lectura para consultar intentos/respuestas.
+  - Se agrego validacion explicita de permiso `update:candidate-attempt` para guardar puntajes.
+  - Si el usuario no tiene permiso de update:
+    - no se muestra editor de puntaje en tabla
+    - el flujo de guardado se bloquea con mensaje de permiso insuficiente
+- Resultado esperado:
+  - Queda separado el control de "ver" y "calificar" sin romper navegacion de lectura.
+
+### 2026-03-20 - Bloque 46 - Nuevo permiso para Mi Puntaje (candidate-score)
+
+- Solicitud atendida:
+  - Separar explicitamente el acceso de "Mi Puntaje" del permiso de intentos.
+- Cambios aplicados en frontend:
+  - Ruta `/main/my-scores` ahora exige `read:candidate-score`.
+  - Menu lateral "Mi Puntaje" ahora depende de `read:candidate-score`.
+  - Se agrego constante `SCORES` en catalogo de permisos del frontend.
+- Resultado esperado:
+  - El acceso a calificaciones queda desacoplado de `read:candidate-attempt`.
+  - Solo perfiles con `read:candidate-score` ven y abren la pantalla de "Mi Puntaje".
+
+### 2026-03-20 - Bloque 47 - Restriccion de Mi Puntaje por rol (solo Candidato)
+
+- Hallazgo reportado:
+  - Usuarios Administrador podian ver "Mi Puntaje" cuando traian `read:candidate-score` en el token.
+- Cambios aplicados en frontend:
+  - Se agrego `allowedRoles` en metadatos de menu y rutas.
+  - Item de menu "Mi Puntaje" configurado con `allowedRoles: ['candidato']`.
+  - Ruta `/main/my-scores` configurada con `allowedRoles: ['candidato']`.
+  - `permissionGuard` ahora valida permiso y rol cuando la ruta define `allowedRoles`.
+  - `MainLayout` ahora filtra menu por permiso + rol permitido.
+- Resultado esperado:
+  - Aunque un administrador tenga `read:candidate-score`, no ve ni accede a `/main/my-scores`.
+
+### 2026-03-20 - Bloque 48 - Integracion de recomendacion y comentario IA en Mi Puntaje
+
+- Entrada funcional recibida:
+  - El endpoint de listado de pruebas ya retorna campos IA por registro:
+    - `aiSuggestedScore`
+    - `aiSummary`
+    - `comentarioIa`
+    - `aiCreatedAt`
+- Cambios aplicados en frontend:
+  - Se extendio `AssignmentTestOption` y su mapeo para leer los campos IA.
+  - `CandidateScorePage` ahora propaga esos datos a cada fila de puntajes.
+  - La tabla de "Mi Puntaje" ahora muestra columnas:
+    - Recomendacion IA
+    - Comentario IA (con fallback a `aiSummary`)
+    - Fecha IA (debajo del comentario cuando existe)
+- Resultado esperado:
+  - El usuario ve recomendacion/comentario IA sin depender de una llamada adicional por intento.
+
+### 2026-03-20 - Bloque 49 - Simplificacion de Mi Puntaje a solo Recomendacion
+
+- Solicitud atendida:
+  - Mostrar solo una columna de recomendacion y quitar comentario IA.
+- Cambios aplicados:
+  - En tabla de "Mi Puntaje" se renombro encabezado a `Recomendacion`.
+  - Se elimino la columna de `Comentario IA` y su fecha asociada.
+  - Se simplifico el modelo de fila para conservar solo `aiSuggestedScore` en esa vista.
+- Resultado esperado:
+  - UI mas simple: solo se visualiza la recomendacion numerica en el modulo.
+
+### 2026-03-20 - Bloque 50 - Actualizacion de documentacion de arquitectura frontend
+
+- Solicitud atendida:
+  - Explicar y actualizar la arquitectura del frontend para facilitar entendimiento del equipo.
+- Cambios aplicados:
+  - Se actualizo `README.md` para reflejar estado real de modulos, rutas, seguridad y proxy actual.
+  - Se creo `docs/Arquitectura-Frontend.md` con detalle por capas:
+    - stack y estilo arquitectonico
+    - estructura de carpetas
+    - flujo de autenticacion
+    - flujo de autorizacion (permiso + rol)
+    - integracion con backend/proxy
+    - decisiones recientes y recomendaciones de evolucion
+- Resultado esperado:
+  - Documento vivo y claro para onboarding tecnico y mantenimiento del proyecto.

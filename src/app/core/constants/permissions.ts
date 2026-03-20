@@ -8,9 +8,9 @@ export const permissions = {
     TESTS: 'read:tests',
     ASSIGNMENTS: 'read:assignments',
     ATTEMPTS: 'read:candidate-attempt',
+    SCORES: 'read:candidate-score',
     AI_ANALYSIS: 'read:ai-analysis',
   },
 } as const;
 
-export type SubjectPermission =
-  (typeof permissions.Subjects)[keyof typeof permissions.Subjects];
+export type SubjectPermission = (typeof permissions.Subjects)[keyof typeof permissions.Subjects];

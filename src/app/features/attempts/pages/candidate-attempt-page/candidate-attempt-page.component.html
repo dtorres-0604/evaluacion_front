@@ -52,7 +52,7 @@
                   <td>{{ attempt.submittedAt || '-' }}</td>
                   <td>{{ attempt.scoreFinal ?? '-' }}</td>
                   <td>
-                    <div class="score-edit">
+                    <div class="score-edit" *ngIf="canUpdateAttemptScore; else readonlyScorePermission">
                       <input
                         type="number"
                         step="0.01"
@@ -69,6 +69,9 @@
                         {{ updatingScoreAttemptId === attempt.id ? 'Guardando...' : 'Guardar' }}
                       </button>
                     </div>
+                    <ng-template #readonlyScorePermission>
+                      <span>Sin permiso de edicion</span>
+                    </ng-template>
                   </td>
                   <td>{{ attempt.active === null ? '-' : attempt.active ? 'Si' : 'No' }}</td>
                   <td>

@@ -7,6 +7,7 @@ export interface SidebarMenuItem {
   route: string;
   subject: SubjectPermission;
   action: string;
+  allowedRoles?: string[];
 }
 
 export const sidebarMenu: SidebarMenuItem[] = [
@@ -47,8 +48,9 @@ export const sidebarMenu: SidebarMenuItem[] = [
     icon: 'workspace_premium',
     label: 'Mi Puntaje',
     route: '/main/my-scores',
-    subject: permissions.Subjects.ATTEMPTS,
+    subject: permissions.Subjects.SCORES,
     action: permissions.Actions.READ,
+    allowedRoles: ['candidato'],
   },
   {
     key: 'ai-analysis',

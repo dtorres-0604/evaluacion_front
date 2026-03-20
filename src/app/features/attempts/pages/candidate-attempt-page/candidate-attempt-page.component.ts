@@ -29,6 +29,8 @@ import {
 } from '../../../assignments/services/assignments.service';
 import { TechnicalQuestionSummary, TestsService } from '../../../tests/services/tests.service';
 import { selectAuthState, selectUserId } from '../../../../store/auth/auth.selectors';
+import { selectPermissions } from '../../../../store/auth/auth.selectors';
+import { hasPermission } from '../../../../core/auth/permission.utils';
 
 interface AdminAttemptRow {
   id: number;
@@ -82,6 +84,7 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
   adminAnswersLoading = false;
   adminAnswerRows: AdminAttemptAnswerView[] = [];
   updatingScoreAttemptId: number | null = null;
+  canUpdateAttemptScore = false;
   private readonly scoreDrafts = new Map<number, string>();
   private assignmentsLookup: AssignmentSummary[] = [];
   private testsLookup: AssignmentTestOption[] = [];
@@ -116,17 +119,27 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
   });
 
   ngOnInit(): void {
-    this.store.select(selectAuthState).pipe(take(1)).subscribe((authState) => {
-      const roles = authState.roles ?? [];
-      this.isAdminView = roles.some((role) => {
-        const normalized = role.toLowerCase();
-        return normalized === 'admin' || normalized === 'administrador';
+    this.store
+      .select(selectPermissions)
+      .pipe(take(1))
+      .subscribe((permissions) => {
+        this.canUpdateAttemptScore = hasPermission('update:candidate-attempt', permissions);
       });
 
-      if (this.isAdminView) {
-        this.loadAdminAttempts();
-      }
-    });
+    this.store
+      .select(selectAuthState)
+      .pipe(take(1))
+      .subscribe((authState) => {
+        const roles = authState.roles ?? [];
+        this.isAdminView = roles.some((role) => {
+          const normalized = role.toLowerCase();
+          return normalized === 'admin' || normalized === 'administrador';
+        });
+
+        if (this.isAdminView) {
+          this.loadAdminAttempts();
+        }
+      });
 
     this.route.queryParamMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       if (this.isAdminView) {
@@ -158,14 +171,17 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
       this.tryAutoStartFromCamera();
     });
 
-    this.store.select(selectUserId).pipe(take(1)).subscribe((userId) => {
-      if (this.isAdminView) {
-        return;
-      }
+    this.store
+      .select(selectUserId)
+      .pipe(take(1))
+      .subscribe((userId) => {
+        if (this.isAdminView) {
+          return;
+        }
 
-      this.candidateUserId = userId;
-      this.loadAssignments();
-    });
+        this.candidateUserId = userId;
+        this.loadAssignments();
+      });
   }
 
   ngOnDestroy(): void {
@@ -242,6 +258,12 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
   }
 
   saveAttemptScore(row: AdminAttemptRow): void {
+    if (!this.canUpdateAttemptScore) {
+      this.errorMessage = 'No tienes permiso para actualizar puntajes.';
+      this.cdr.markForCheck();
+      return;
+    }
+
     const draftRaw = this.getScoreDraft(row);
     const parsed = Number(draftRaw);
 
@@ -268,7 +290,8 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
         );
 
         if (this.selectedAdminAttempt?.id === row.id) {
-          this.selectedAdminAttempt = this.adminAttempts.find((attempt) => attempt.id === row.id) ?? null;
+          this.selectedAdminAttempt =
+            this.adminAttempts.find((attempt) => attempt.id === row.id) ?? null;
         }
 
         this.successMessage = `Puntaje actualizado para intento #${row.id}.`;
@@ -341,7 +364,7 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
     this.selectedAssignment =
       this.pendingDirectAssignmentId === null
         ? null
-        : this.assignments.find((item) => item.id === this.pendingDirectAssignmentId) ?? null;
+        : (this.assignments.find((item) => item.id === this.pendingDirectAssignmentId) ?? null);
 
     this.pendingDirectAttemptId = null;
     this.pendingDirectAssignmentId = null;
@@ -492,10 +515,12 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
               : 'IA no se despacho.';
 
         const submitMessage = result.alreadyFinalized
-          ? result.message ?? 'Intento ya finalizado previamente. Operacion tomada como exitosa.'
+          ? (result.message ?? 'Intento ya finalizado previamente. Operacion tomada como exitosa.')
           : `Intento ${statusLabel}. ${aiLabel}`;
 
-        this.successMessage = preSubmitWarning ? `${preSubmitWarning} ${submitMessage}` : submitMessage;
+        this.successMessage = preSubmitWarning
+          ? `${preSubmitWarning} ${submitMessage}`
+          : submitMessage;
         this.attemptLocalStatus = 'finalizado';
         this.questions = [];
         this.selectedAssignment = null;
@@ -614,7 +639,7 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
     const assignment =
       attempt.assignmentId === null
         ? null
-        : this.assignmentsLookup.find((item) => item.id === attempt.assignmentId) ?? null;
+        : (this.assignmentsLookup.find((item) => item.id === attempt.assignmentId) ?? null);
 
     const testId = attempt.testId ?? assignment?.testId ?? null;
     const candidateUserId = attempt.candidateUserId ?? assignment?.candidateUserId ?? null;
@@ -623,14 +648,14 @@ export class CandidateAttemptPageComponent implements OnInit, OnDestroy {
       attempt.candidateName ??
       (candidateUserId === null
         ? '-'
-        : this.candidatesLookup.find((item) => item.id === candidateUserId)?.fullName ??
-          `Usuario #${candidateUserId}`);
+        : (this.candidatesLookup.find((item) => item.id === candidateUserId)?.fullName ??
+          `Usuario #${candidateUserId}`));
 
     const testTitle =
       attempt.testTitle ??
       (testId === null
         ? '-'
-        : this.testsLookup.find((item) => item.id === testId)?.title ?? `Prueba #${testId}`);
+        : (this.testsLookup.find((item) => item.id === testId)?.title ?? `Prueba #${testId}`));
 
     return {
       id: attempt.id,

@@ -10,6 +10,10 @@ export interface AssignmentTestOption {
   passingScore: number | null;
   scoreFinal: number | null;
   scoreAverage: number | null;
+  aiSuggestedScore: number | null;
+  aiSummary: string | null;
+  aiComment: string | null;
+  aiCreatedAt: string | null;
 }
 
 export interface AssignmentCandidateOption {
@@ -142,6 +146,10 @@ export class AssignmentsService {
           scoreAverage:
             this.readNumber(bag, ['scorePromedio', 'averageScore']) ??
             this.readNumberByPartialKey(bag, ['scorepromedio', 'scoreaverage', 'promedio']),
+          aiSuggestedScore: this.readNumber(bag, ['aiSuggestedScore', 'suggestedScore']),
+          aiSummary: this.readString(bag, ['aiSummary', 'summary']),
+          aiComment: this.readString(bag, ['comentarioIa', 'aiComment']),
+          aiCreatedAt: this.readString(bag, ['aiCreatedAt', 'createdAt']),
         };
       })
       .filter((item): item is AssignmentTestOption => item !== null);
