@@ -43,6 +43,14 @@ export const sidebarMenu: SidebarMenuItem[] = [
     action: permissions.Actions.READ,
   },
   {
+    key: 'my-scores',
+    icon: 'workspace_premium',
+    label: 'Mi Puntaje',
+    route: '/main/my-scores',
+    subject: permissions.Subjects.ATTEMPTS,
+    action: permissions.Actions.READ,
+  },
+  {
     key: 'ai-analysis',
     icon: 'smart_toy',
     label: 'Analisis IA',

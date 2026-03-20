@@ -7,6 +7,9 @@ const API_BASE_URL = '/api';
 export interface AssignmentTestOption {
   id: number;
   title: string;
+  passingScore: number | null;
+  scoreFinal: number | null;
+  scoreAverage: number | null;
 }
 
 export interface AssignmentCandidateOption {
@@ -132,9 +135,40 @@ export class AssignmentsService {
         return {
           id,
           title: this.readString(bag, ['titulo', 'title', 'nombre']) ?? `Prueba ${id}`,
+          passingScore: this.readNumber(bag, ['puntajeAprobacion', 'passingScore']),
+          scoreFinal:
+            this.readNumber(bag, ['scoreFinal', 'puntajeFinal']) ??
+            this.readNumberByPartialKey(bag, ['scorefinal', 'puntajefinal']),
+          scoreAverage:
+            this.readNumber(bag, ['scorePromedio', 'averageScore']) ??
+            this.readNumberByPartialKey(bag, ['scorepromedio', 'scoreaverage', 'promedio']),
         };
       })
       .filter((item): item is AssignmentTestOption => item !== null);
+  }
+
+  private readNumberByPartialKey(
+    source: Record<string, unknown>,
+    keyFragments: string[],
+  ): number | null {
+    for (const [key, rawValue] of Object.entries(source)) {
+      const normalizedKey = key.toLowerCase();
+      const matches = keyFragments.some((fragment) => normalizedKey.includes(fragment));
+      if (!matches) {
+        continue;
+      }
+
+      if (typeof rawValue === 'number') {
+        return rawValue;
+      }
+
+      const parsed = Number(rawValue);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    return null;
   }
 
   private mapCandidateUsersResponse(raw: unknown): AssignmentCandidateOption[] {

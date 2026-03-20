@@ -146,6 +146,8 @@
                 <th>Titulo</th>
                 <th>Duracion (min)</th>
                 <th>Puntaje Aprobacion</th>
+                <th>Puntaje Final</th>
+                <th>Puntaje Promedio</th>
                 <th>Publicada</th>
                 <th>Acciones</th>
               </tr>
@@ -156,6 +158,8 @@
                 <td>{{ test.title }}</td>
                 <td>{{ test.durationMinutes }}</td>
                 <td>{{ test.passingScore }}</td>
+                <td>{{ test.scoreFinal ?? '-' }}</td>
+                <td>{{ test.scoreAverage ?? '-' }}</td>
                 <td>{{ test.isPublished ? 'Si' : 'No' }}</td>
                 <td class="actions-col">
                   <button type="button" class="btn action-button" (click)="onEditTest(test)">Editar</button>
@@ -164,7 +168,7 @@
               </tr>
 
               <tr *ngIf="tests.length === 0">
-                <td colspan="6">No hay pruebas tecnicas registradas.</td>
+                <td colspan="8">No hay pruebas tecnicas registradas.</td>
               </tr>
             </tbody>
           </table>

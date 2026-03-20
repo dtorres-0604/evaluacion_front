@@ -1,0 +1,49 @@
+.attempt-camera-page {
+  min-height: calc(100dvh - 136px);
+  background: #ffffff;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.camera-shell {
+  width: min(840px, 100%);
+  background: #ffffff;
+  border: 1px solid #e6e8ef;
+  border-radius: 12px;
+  padding: 20px;
+  display: grid;
+  gap: 14px;
+}
+
+h2 {
+  margin: 0;
+  font-size: 1.3rem;
+}
+
+.hint {
+  margin: 0;
+  color: #6b7280;
+}
+
+.camera-preview-wrap {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #f6f7fb;
+  border: 1px dashed #d1d5db;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: #ffffff;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}

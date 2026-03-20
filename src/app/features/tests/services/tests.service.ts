@@ -19,6 +19,8 @@ export interface TechnicalTestSummary {
   durationMinutes: number;
   passingScore: number;
   isPublished: boolean;
+  scoreFinal: number | null;
+  scoreAverage: number | null;
 }
 
 export interface CandidateUserSummary {
@@ -237,7 +239,37 @@ export class TestsService {
       passingScore: this.readNumber(source, ['puntajeAprobacion', 'passingScore']) ?? 0,
       isPublished:
         this.readBoolean(source, ['isPublished', 'publicada', 'published', 'activo']) ?? false,
+      scoreFinal:
+        this.readNumber(source, ['scoreFinal', 'puntajeFinal']) ??
+        this.readNumberByPartialKey(source, ['scorefinal', 'puntajefinal']),
+      scoreAverage:
+        this.readNumber(source, ['scorePromedio', 'averageScore']) ??
+        this.readNumberByPartialKey(source, ['scorepromedio', 'scoreaverage', 'promedio']),
     };
+  }
+
+  private readNumberByPartialKey(
+    source: Record<string, unknown>,
+    keyFragments: string[],
+  ): number | null {
+    for (const [key, rawValue] of Object.entries(source)) {
+      const normalizedKey = key.toLowerCase();
+      const matches = keyFragments.some((fragment) => normalizedKey.includes(fragment));
+      if (!matches) {
+        continue;
+      }
+
+      if (typeof rawValue === 'number') {
+        return rawValue;
+      }
+
+      const parsed = Number(rawValue);
+      if (Number.isFinite(parsed)) {
+        return parsed;
+      }
+    }
+
+    return null;
   }
 
   private mapCandidateUsersResponse(raw: unknown): CandidateUserSummary[] {

@@ -1,0 +1,125 @@
+<section class="ai-analysis-page">
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">smart_toy</span>
+      </div>
+      <div>
+        <h3 class="card-title">Analisis IA</h3>
+        <p>Resultados consolidados por intento luego de finalizar evaluacion.</p>
+      </div>
+    </header>
+
+    <section class="card-content controls">
+      <label>
+        Buscar
+        <input type="text" [(ngModel)]="query" placeholder="Candidato, prueba o intento" />
+      </label>
+
+      <label>
+        Estado IA
+        <select [(ngModel)]="statusFilter">
+          <option value="all">Todos</option>
+          <option value="pendiente">Pendiente</option>
+          <option value="en progreso">En progreso</option>
+          <option value="completado">Completado</option>
+          <option value="fallido">Fallido</option>
+        </select>
+      </label>
+
+      <button type="button" class="btn" [disabled]="loading" (click)="loadData()">
+        {{ loading ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </section>
+
+    <section class="card-content lookup-row">
+      <label>
+        Validar analisis por AttemptId
+        <input type="number" [(ngModel)]="attemptLookupId" placeholder="Ej: 123" />
+      </label>
+
+      <button type="button" class="btn" [disabled]="lookupLoading" (click)="onLookupByAttemptId()">
+        {{ lookupLoading ? 'Consultando...' : 'Consultar /ai/attempts/{id}/analysis' }}
+      </button>
+
+      <p *ngIf="lookupMessage">{{ lookupMessage }}</p>
+    </section>
+  </article>
+
+  <article class="card">
+    <section class="card-content">
+      <ng-container *ngIf="loading; else analysisTable">
+        <p>Cargando analisis de IA...</p>
+      </ng-container>
+
+      <ng-template #analysisTable>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Intento</th>
+                <th>Candidato</th>
+                <th>Prueba</th>
+                <th>Estado IA</th>
+                <th>Riesgo</th>
+                <th>Puntaje</th>
+                <th>Accion</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of filteredRows">
+                <td>#{{ row.attemptId }}</td>
+                <td>{{ row.candidateName }}</td>
+                <td>{{ row.testTitle }}</td>
+                <td>{{ row.aiStatus }}</td>
+                <td>{{ row.riskLevel }}</td>
+                <td>{{ row.score ?? '-' }}</td>
+                <td>
+                  <button type="button" class="btn" (click)="onSelectRow(row)">Ver detalle</button>
+                </td>
+              </tr>
+              <tr *ngIf="filteredRows.length === 0">
+                <td colspan="7">No hay analisis para los filtros seleccionados.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-template>
+    </section>
+  </article>
+
+  <article class="card" *ngIf="selected as detail">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">insights</span>
+      </div>
+      <div>
+        <h3 class="card-title">Detalle IA - Intento #{{ detail.attemptId }}</h3>
+        <p>{{ detail.candidateName }} - {{ detail.testTitle }}</p>
+      </div>
+    </header>
+
+    <section class="card-content detail-grid">
+      <div>
+        <strong>Resumen</strong>
+        <p>{{ detail.summary }}</p>
+      </div>
+
+      <div>
+        <strong>Recomendaciones</strong>
+        <ul>
+          <li *ngFor="let item of detail.recommendations">{{ item }}</li>
+          <li *ngIf="detail.recommendations.length === 0">Sin recomendaciones.</li>
+        </ul>
+      </div>
+
+      <div>
+        <strong>Auditoria</strong>
+        <p>Generado: {{ detail.createdAt || '-' }}</p>
+        <p>Actualizado: {{ detail.updatedAt || '-' }}</p>
+      </div>
+    </section>
+  </article>
+
+  <p class="inline-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>

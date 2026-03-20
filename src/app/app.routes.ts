@@ -4,11 +4,13 @@ import { guestGuard } from './core/guards/guest.guard';
 import { permissionGuard } from './core/guards/permission.guard';
 import { LoginPageComponent } from './features/auth/pages/login-page.component';
 import { CandidateAttemptPageComponent } from './features/attempts/pages/candidate-attempt-page/candidate-attempt-page.component';
+import { AttemptCameraPageComponent } from './features/attempts/pages/attempt-camera-page/attempt-camera-page.component';
+import { CandidateScorePageComponent } from './features/attempts/pages/candidate-score-page/candidate-score-page.component';
 import { AssignmentsPageComponent } from './features/assignments/pages/assignments-page/assignments-page.component';
+import { AiAnalysisPageComponent } from './features/ai-analysis/pages/ai-analysis-page.component';
 import { DashboardPageComponent } from './features/dashboard/pages/dashboard-page.component';
 import { MainLayoutComponent } from './features/main/layout/main-layout.component';
 import { HomeRedirectPageComponent } from './features/main/pages/home-redirect-page/home-redirect-page.component';
-import { ModulePageComponent } from './features/main/pages/module-page/module-page.component';
 import { TestCreatePageComponent } from './features/tests/pages/test-create-page/test-create-page.component';
 import { UsersCrudPageComponent } from './features/users/pages/users-crud-page/users-crud-page.component';
 
@@ -66,6 +68,16 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'attempts/:assignmentId/camera',
+        component: AttemptCameraPageComponent,
+        canActivate: [permissionGuard],
+        data: {
+          permission: 'read:candidate-attempt',
+          title: 'Validacion de Camara',
+          description: 'Activacion de camara previa a realizar la evaluacion.',
+        },
+      },
+      {
         path: 'attempts',
         component: CandidateAttemptPageComponent,
         canActivate: [permissionGuard],
@@ -76,8 +88,18 @@ export const routes: Routes = [
         },
       },
       {
+        path: 'my-scores',
+        component: CandidateScorePageComponent,
+        canActivate: [permissionGuard],
+        data: {
+          permission: 'read:candidate-attempt',
+          title: 'Mi Puntaje',
+          description: 'Consulta de resultados y calificaciones de intentos.',
+        },
+      },
+      {
         path: 'ai-analysis',
-        component: ModulePageComponent,
+        component: AiAnalysisPageComponent,
         canActivate: [permissionGuard],
         data: {
           permission: 'read:ai-analysis',

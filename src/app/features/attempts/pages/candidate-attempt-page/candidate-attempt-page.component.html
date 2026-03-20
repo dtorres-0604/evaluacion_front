@@ -1,134 +1,267 @@
-<section class="attempts-page">
-  <article class="card">
-    <header class="card-header">
-      <div class="card-header-icon" aria-hidden="true">
-        <span class="material-symbols-rounded">assignment_ind</span>
-      </div>
-      <div>
-        <h3 class="card-title">Mis Pruebas Asignadas</h3>
-        <p>Inicia una prueba y responde en linea.</p>
-      </div>
-    </header>
-
-    <section class="card-content">
-      <ng-container *ngIf="loadingAssignments; else assignmentsTable">
-        <p>Cargando asignaciones...</p>
-      </ng-container>
-
-      <ng-template #assignmentsTable>
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th>ID Asignacion</th>
-                <th>Prueba</th>
-                <th>Vigencia</th>
-                <th>Estado</th>
-                <th>Accion</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let assignment of assignments">
-                <td>{{ assignment.id }}</td>
-                <td>{{ assignment.testTitle }}</td>
-                <td>
-                  {{ assignment.enabledFrom || '-' }}
-                  <br />
-                  {{ assignment.enabledTo || '-' }}
-                </td>
-                <td>{{ assignment.status }}</td>
-                <td>
-                  <button type="button" class="btn btn-success" (click)="onStartAssignment(assignment)">Preparar</button>
-                </td>
-              </tr>
-              <tr *ngIf="assignments.length === 0">
-                <td colspan="5">No hay pruebas asignadas para tu usuario.</td>
-              </tr>
-            </tbody>
-          </table>
+<section class="attempts-page" [class.attempts-page--exam]="!!currentQuestion">
+  <ng-container *ngIf="isAdminView">
+    <article class="card">
+      <header class="card-header">
+        <div class="card-header-icon" aria-hidden="true">
+          <span class="material-symbols-rounded">fact_check</span>
         </div>
-      </ng-template>
-    </section>
-  </article>
+        <div>
+          <h3 class="card-title">Intentos de Candidatos</h3>
+          <p>Revision de intentos y respuestas enviadas por los candidatos.</p>
+        </div>
+      </header>
 
-  <article class="card" *ngIf="selectedAssignment && !currentAttemptId">
-    <header class="card-header">
-      <div class="card-header-icon" aria-hidden="true">
-        <span class="material-symbols-rounded">play_circle</span>
-      </div>
-      <div>
-        <h3 class="card-title">Iniciar prueba</h3>
-        <p>Confirma para comenzar tu intento.</p>
-      </div>
-    </header>
+      <section class="card-content">
+        <div class="form-actions">
+          <button type="button" class="btn" [disabled]="adminLoading" (click)="loadAdminAttempts()">
+            {{ adminLoading ? 'Actualizando...' : 'Actualizar intentos' }}
+          </button>
+        </div>
 
-    <section class="card-content start-card-content">
-      <p><strong>Prueba:</strong> {{ selectedAssignment.testTitle }}</p>
-      <p><strong>ID Asignacion:</strong> {{ selectedAssignment.id }}</p>
-      <p><strong>Estado:</strong> {{ selectedAssignment.status }}</p>
+        <ng-container *ngIf="adminLoading; else attemptsAdminTable">
+          <p>Cargando intentos...</p>
+        </ng-container>
 
-      <div class="form-actions">
-        <button type="button" class="btn btn-success" [disabled]="startingAttempt" (click)="onConfirmStartAttempt()">
-          {{ startingAttempt ? 'Iniciando...' : 'Iniciar prueba' }}
-        </button>
-        <button type="button" class="btn" [disabled]="startingAttempt" (click)="onCancelStart()">Cancelar</button>
-      </div>
-    </section>
-  </article>
+        <ng-template #attemptsAdminTable>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Intento</th>
+                  <th>Candidato</th>
+                  <th>Prueba</th>
+                  <th>Estado</th>
+                  <th>Inicio</th>
+                  <th>Enviado</th>
+                  <th>Puntaje</th>
+                  <th>Asignar puntaje</th>
+                  <th>Activo</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let attempt of adminAttempts">
+                  <td>#{{ attempt.id }}</td>
+                  <td>{{ attempt.candidateName }}</td>
+                  <td>{{ attempt.testTitle }}</td>
+                  <td>
+                    {{ attempt.status }}
+                    <span *ngIf="attempt.statusCode !== null">({{ attempt.statusCode }})</span>
+                  </td>
+                  <td>{{ attempt.startedAt || '-' }}</td>
+                  <td>{{ attempt.submittedAt || '-' }}</td>
+                  <td>{{ attempt.scoreFinal ?? '-' }}</td>
+                  <td>
+                    <div class="score-edit">
+                      <input
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        [value]="getScoreDraft(attempt)"
+                        (input)="onScoreDraftChange(attempt.id, $any($event.target).value)"
+                      />
+                      <button
+                        type="button"
+                        class="btn"
+                        [disabled]="updatingScoreAttemptId === attempt.id"
+                        (click)="saveAttemptScore(attempt)"
+                      >
+                        {{ updatingScoreAttemptId === attempt.id ? 'Guardando...' : 'Guardar' }}
+                      </button>
+                    </div>
+                  </td>
+                  <td>{{ attempt.active === null ? '-' : attempt.active ? 'Si' : 'No' }}</td>
+                  <td>
+                    <button type="button" class="btn" (click)="onSelectAdminAttempt(attempt)">Ver detalle</button>
+                  </td>
+                </tr>
+                <tr *ngIf="adminAttempts.length === 0">
+                  <td colspan="10">No hay intentos registrados.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-template>
+      </section>
+    </article>
 
-  <article class="card" *ngIf="currentQuestion as question">
-    <header class="card-header">
-      <div class="card-header-icon" aria-hidden="true">
-        <span class="material-symbols-rounded">quiz</span>
-      </div>
-      <div>
-        <h3 class="card-title">Pregunta {{ currentIndex + 1 }} de {{ questions.length }}</h3>
-        <p>Tiempo restante: {{ remainingSeconds }} s</p>
-      </div>
-    </header>
+    <article class="card" *ngIf="selectedAdminAttempt as selected">
+      <header class="card-header">
+        <div class="card-header-icon" aria-hidden="true">
+          <span class="material-symbols-rounded">description</span>
+        </div>
+        <div>
+          <h3 class="card-title">Detalle Intento #{{ selected.id }}</h3>
+          <p>{{ selected.candidateName }} - {{ selected.testTitle }}</p>
+        </div>
+      </header>
 
-    <form class="card-content answer-form" [formGroup]="answerForm">
-      <p class="statement">{{ question.statement }}</p>
+      <section class="card-content">
+        <ng-container *ngIf="adminAnswersLoading; else answerDetailsTable">
+          <p>Cargando respuestas del intento...</p>
+        </ng-container>
 
-      <ng-container *ngIf="question.type === 2; else textQuestion">
-        <label class="option-row" *ngFor="let option of question.options">
-          <input type="radio" formControlName="selectedOption" [value]="option.value" />
-          <span>{{ option.text }}</span>
-        </label>
-      </ng-container>
+        <ng-template #answerDetailsTable>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Pregunta</th>
+                  <th>Respuesta del Candidato</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let answer of adminAnswerRows">
+                  <td>{{ answer.statement }}</td>
+                  <td>{{ answer.response }}</td>
+                </tr>
+                <tr *ngIf="adminAnswerRows.length === 0">
+                  <td colspan="2">Este intento no tiene respuestas registradas.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-template>
+      </section>
+    </article>
+  </ng-container>
 
-      <ng-template #textQuestion>
-        <label>
-          Tu respuesta
-          <textarea rows="6" formControlName="answerText"></textarea>
-        </label>
-      </ng-template>
+  <ng-container *ngIf="!isAdminView && !currentQuestion">
+    <article class="card">
+      <header class="card-header">
+        <div class="card-header-icon" aria-hidden="true">
+          <span class="material-symbols-rounded">assignment_ind</span>
+        </div>
+        <div>
+          <h3 class="card-title">Mis Pruebas Asignadas</h3>
+          <p>Inicia una prueba y responde en linea.</p>
+        </div>
+      </header>
 
-      <div class="form-actions">
-        <button type="button" class="btn" (click)="onPreviousQuestion()" [disabled]="currentIndex === 0 || saving">
-          Anterior
-        </button>
+      <section class="card-content">
+        <ng-container *ngIf="loadingAssignments; else assignmentsTable">
+          <p>Cargando asignaciones...</p>
+        </ng-container>
 
-        <button
-          type="button"
-          class="btn"
-          (click)="onNextQuestion()"
-          [disabled]="currentIndex === questions.length - 1 || saving"
-        >
-          Guardar y siguiente
-        </button>
+        <ng-template #assignmentsTable>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID Asignacion</th>
+                  <th>Prueba</th>
+                  <th>Vigencia</th>
+                  <th>Estado</th>
+                  <th>Accion</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let assignment of assignments">
+                  <td>{{ assignment.id }}</td>
+                  <td>{{ assignment.testTitle }}</td>
+                  <td>
+                    {{ assignment.enabledFrom || '-' }}
+                    <br />
+                    {{ assignment.enabledTo || '-' }}
+                  </td>
+                  <td>{{ assignment.status }}</td>
+                  <td>
+                    <button type="button" class="btn btn-success" (click)="onStartAssignment(assignment)">Hacer evaluacion</button>
+                  </td>
+                </tr>
+                <tr *ngIf="assignments.length === 0">
+                  <td colspan="5">No hay pruebas asignadas para tu usuario.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </ng-template>
+      </section>
+    </article>
 
-        <button
-          type="button"
-          class="btn btn-success"
-          (click)="onSubmitAttempt()"
-          [disabled]="currentIndex !== questions.length - 1 || saving"
-        >
-          {{ saving ? 'Enviando...' : 'Finalizar intento' }}
-        </button>
-      </div>
-    </form>
-  </article>
+    <article class="card" *ngIf="selectedAssignment && !currentAttemptId">
+      <header class="card-header">
+        <div class="card-header-icon" aria-hidden="true">
+          <span class="material-symbols-rounded">play_circle</span>
+        </div>
+        <div>
+          <h3 class="card-title">Iniciar prueba</h3>
+          <p>Confirma para comenzar tu intento.</p>
+        </div>
+      </header>
+
+      <section class="card-content start-card-content">
+        <p><strong>Prueba:</strong> {{ selectedAssignment.testTitle }}</p>
+        <p><strong>ID Asignacion:</strong> {{ selectedAssignment.id }}</p>
+        <p><strong>Estado:</strong> {{ selectedAssignment.status }}</p>
+
+        <div class="form-actions">
+          <button type="button" class="btn btn-success" [disabled]="startingAttempt" (click)="onConfirmStartAttempt()">
+            {{ startingAttempt ? 'Iniciando...' : 'Iniciar prueba' }}
+          </button>
+          <button type="button" class="btn" [disabled]="startingAttempt" (click)="onCancelStart()">Cancelar</button>
+        </div>
+      </section>
+    </article>
+  </ng-container>
+
+  <ng-container *ngIf="!isAdminView">
+    <article class="exam-shell" *ngIf="currentQuestion as question">
+      <form class="exam-form" [formGroup]="answerForm">
+        <div class="exam-meta">
+          <p>Pregunta {{ currentIndex + 1 }} de {{ questions.length }}</p>
+          <p>Tiempo restante: {{ remainingSeconds }} s</p>
+        </div>
+
+        <p class="statement">{{ question.statement }}</p>
+
+        <ng-container *ngIf="question.type === 2; else textQuestion">
+          <div class="options-list">
+            <label
+              class="option-row"
+              *ngFor="let option of question.options"
+              [class.option-row--selected]="answerForm.controls.selectedOption.value === option.value"
+            >
+              <input type="radio" formControlName="selectedOption" [value]="option.value" [disabled]="inputsLocked" />
+              <span class="option-dot" aria-hidden="true"></span>
+              <span class="option-text" [title]="option.text">{{ option.text }}</span>
+            </label>
+          </div>
+        </ng-container>
+
+        <ng-template #textQuestion>
+          <label>
+            Tu respuesta
+            <textarea rows="8" formControlName="answerText" [disabled]="inputsLocked"></textarea>
+          </label>
+        </ng-template>
+
+        <div class="form-actions exam-actions">
+          <button type="button" class="btn" (click)="onPreviousQuestion()" [disabled]="currentIndex === 0 || saving || inputsLocked">
+            Anterior
+          </button>
+
+          <button
+            type="button"
+            class="btn"
+            (click)="onNextQuestion()"
+            [disabled]="currentIndex === questions.length - 1 || saving || inputsLocked"
+          >
+            Guardar y siguiente
+          </button>
+
+          <button
+            type="button"
+            class="btn btn-success"
+            (click)="onSubmitAttempt()"
+            [disabled]="currentIndex !== questions.length - 1 || saving || inputsLocked"
+          >
+            {{ saving ? 'Enviando...' : 'Finalizar intento' }}
+          </button>
+        </div>
+      </form>
+    </article>
+  </ng-container>
 
   <p class="inline-error" *ngIf="errorMessage">{{ errorMessage }}</p>
   <p class="inline-success" *ngIf="successMessage">{{ successMessage }}</p>

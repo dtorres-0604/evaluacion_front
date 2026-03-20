@@ -1,0 +1,36 @@
+<section class="attempt-camera-page">
+  <div class="camera-shell">
+    <h2>Validacion de Camara</h2>
+    <p class="hint">Asignacion #{{ assignmentId }}</p>
+
+    <div class="camera-preview-wrap">
+      <video #cameraPreview autoplay playsinline muted></video>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-success" [disabled]="loadingCamera" (click)="onEnableCamera()">
+        {{ loadingCamera ? 'Activando...' : 'Activar camara' }}
+      </button>
+
+      <button type="button" class="btn" (click)="onForceCameraReady()">Ya esta activa, continuar</button>
+
+      <button
+        type="button"
+        class="btn btn-success"
+        [disabled]="!cameraEnabled || assignmentId <= 0 || testId <= 0 || startingEvaluation"
+        (click)="onContinueEvaluation()"
+      >
+        {{ startingEvaluation ? 'Abriendo evaluacion...' : 'Continuar evaluacion' }}
+      </button>
+
+      <button type="button" class="btn" [disabled]="!cameraEnabled" (click)="onDisableCamera()">
+        Desactivar camara
+      </button>
+
+      <button type="button" class="btn" (click)="onBackToAssignments()">Volver</button>
+    </div>
+
+    <p class="inline-success" *ngIf="cameraEnabled">Camara activa correctamente.</p>
+    <p class="inline-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+  </div>
+</section>

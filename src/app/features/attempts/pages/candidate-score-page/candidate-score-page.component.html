@@ -1,0 +1,69 @@
+<section class="candidate-score-page">
+  <article class="card">
+    <header class="card-header">
+      <div class="card-header-icon" aria-hidden="true">
+        <span class="material-symbols-rounded">leaderboard</span>
+      </div>
+      <div>
+        <h3 class="card-title">Mi Puntaje</h3>
+        <p>Consulta tus resultados por intento.</p>
+      </div>
+    </header>
+
+    <section class="card-content summary-row">
+      <p><strong>Promedio:</strong> {{ averageScore ?? '-' }}</p>
+      <button type="button" class="btn" [disabled]="loading" (click)="loadScores()">
+        {{ loading ? 'Actualizando...' : 'Actualizar' }}
+      </button>
+    </section>
+  </article>
+
+  <article class="card">
+    <section class="card-content">
+      <ng-container *ngIf="loading; else scoresTable">
+        <p>Cargando puntajes...</p>
+      </ng-container>
+
+      <ng-template #scoresTable>
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Intento</th>
+                <th>Prueba</th>
+                <th>Estado</th>
+                <th>Enviado</th>
+                <th>Puntaje</th>
+                <th>Promedio</th>
+                <th>Minimo Aprobacion</th>
+                <th>Resultado</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows">
+                <td>#{{ row.attemptId }}</td>
+                <td>{{ row.testTitle }}</td>
+                <td>{{ row.status }}</td>
+                <td>{{ row.submittedAt || '-' }}</td>
+                <td>{{ row.scoreFinal ?? '-' }}</td>
+                <td>{{ row.testScoreAverage ?? '-' }}</td>
+                <td>{{ row.passingScore ?? '-' }}</td>
+                <td>
+                  <ng-container *ngIf="row.scoreFinal !== null && row.passingScore !== null; else noResult">
+                    {{ row.scoreFinal >= row.passingScore ? 'Aprobado' : 'Reprobado' }}
+                  </ng-container>
+                  <ng-template #noResult>-</ng-template>
+                </td>
+              </tr>
+              <tr *ngIf="rows.length === 0">
+                <td colspan="8">Aun no tienes intentos con resultado visible.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </ng-template>
+    </section>
+  </article>
+
+  <p class="inline-error" *ngIf="errorMessage">{{ errorMessage }}</p>
+</section>

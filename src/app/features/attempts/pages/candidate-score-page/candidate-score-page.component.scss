@@ -1,0 +1,41 @@
+.candidate-score-page {
+  min-height: calc(100dvh - 136px);
+  display: grid;
+  align-content: start;
+  gap: 14px;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  p {
+    margin: 0;
+  }
+}
+
+.table-wrapper {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.92rem;
+}
+
+th,
+td {
+  border-bottom: 1px solid var(--border-soft);
+  padding: 10px;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
